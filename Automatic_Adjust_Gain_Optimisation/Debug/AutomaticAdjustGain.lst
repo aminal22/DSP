@@ -1,0 +1,51 @@
+TMS320C6x Assembler PC v7.4.18 Sun Oct 22 18:50:25 2023
+
+Tools Copyright (c) 1996-2015 Texas Instruments Incorporated
+../AutomaticAdjustGain.asm                                           PAGE    1
+
+       1                    ; Registre A4 contient l'adresse de XnBuffer
+       2                    ; Registre B4 contient le nombre d'échantillons N
+       3                    ; Registre B3 contient l'adresse de retour au main
+       4                    
+       5                            .def    _FindGain
+       6                    
+       7                    ;*** Nombre de cycle de loop: 8 cycles * 128 = 1024 cycles
+       8 00000000           _FindGain:
+       9 00000000 05000FA8                  MVK             .S1             31, A10                 ; Maximum de décalage à gauche
+      10 00000004 0010005A                  MV              .L2             B4, B0                  ; nombre d'échantillons N --> 
+      11 00000008           loop:
+      12 00000008 05903644                  LDH             .D1             *A4++, A11              ; Lecture d'un échantillons Xn
+      13 0000000c 0003E1A2                  SUB             .S2             B0, 1, B0               ; Décrementation du compteur d
+      14 00000010 20000110    [B0]  B               .S1             loop                    ; Boucle pour faire 128 itérations
+      15 00000014 00002000                  NOP             2
+      16 00000018 062C0C78                  NORM    .L1             A11, A12                ; Redondance du bit de signe de l'écha
+      17 0000001c 01298AF8                  CMPLT   .L1             A12, A10, A2    ; Si (Redondance du bit de signe de l'échantil
+      18 00000020 A53001A0    [A2]  MV              .S1             A12, A10                ; Si oui (Redondance du bit de signe d
+      19                    
+      20 00000024 022A01A0                  SUB             .S1             A10, 16 , A4    ; Les échantillons sont en 16 bits sig
+      21 00000028 000C0362                  B       .S2             B3                              ; B3 contient l'adresse de ret
+      22 0000002c 00008000                  NOP             5                                               ; 5 delay slot pour l'
+      23                    
+      24                    
+      25                    
+      26                    
+      27                    ;*** Nombre de cycle de loop: 15 cycles * 128 = 1920 cycles
+      28                    
+      29                    ;_FindGain:
+      30                    ;               MVK             .S1             31, A10                 ; A10 = Maximum redondance du 
+      31                    ;               MV              .L2             B4, B0                  ; nombre d'échantillons N --> 
+      32                    ;loop:
+      33                    ;               LDH             .D1             *A4++, A11              ; Lecture d'un échantillons Xn
+      34                    ;               NOP                             4                               ; 4 delay slot pour l'
+      35                    ;               NORM    .L1             A11, A12                ; Redondance du bit de signe de l'écha
+      36                    ;               CMPLT   .L1             A12, A10, A2    ; Si (Redondance du bit de signe de l'échantil
+      37                    ;  [A2] MV              .S1             A12, A10                ; Si oui, Redondance du bit de signe d
+      38                    ;               SUB             .S2             B0, 1, B0               ; Décrementation du compteur d
+      39                    ;  [B0] B               .S1             loop                    ; Boucle pour faire 128 itérations
+      40                    ;               NOP                             5                               ; 5 delay slot pour l'
+      41                    ;
+      42                    ;               SUB             .S1             A10, 16 , A4    ; Les échantillons sont "short" donc 1
+      43                    ;               B       .S2             B3                              ; B3 contient l'adresse de ret
+      44                    ;               NOP                             5                               ; 5 delay slot pour l'
+
+No Assembly Errors, No Assembly Warnings

@@ -1,0 +1,37 @@
+TMS320C6x Assembler PC v7.4.18 Sun Oct 22 19:31:04 2023
+
+Tools Copyright (c) 1996-2015 Texas Instruments Incorporated
+../FIR_Assembleur.asm                                                PAGE    1
+
+       1                                    .def    _FIR_asm
+       2                                    .ref    _Xn_buffer, _h, _format_Qk, _count
+       3                    
+       4 00000000                           .text
+       5 00000000           _FIR_asm:
+       6 00000000 0018005A                  MV              .L2             B6, B0                  ; A4: Xn_buffer,   B4 = h, A6 
+       7 00000004 031BE05A                  SUB             .L2             B6, 1, B6               ; N-1 --> A6
+       8 00000008 03182CA2                  SHL             .S2             B6, 1, B6               ; (N-1)*2 --> B6 (Half Word = 
+       9 0000000c 03989078                  ADD             .L1x    A4, B6, A7              ; Adr_Xn_buffer[0] + 2*(N-1) = Adr_Xn_
+      10 00000010 0398807A                  ADD             .L2             B4, B6, B7              ; Adr_h[0] + 2*(N-1) = Adr_h[N
+      11 00000014 020000F8                  ZERO    .L1             A4                              ; A4 = Yn = 0
+      12 00000018           LOOP:
+      13 00000018 029C3445                  LDH             .D1             *A7--, A5               ; Xn(i) --> A5
+      14 0000001c 029C34C6    ||    LDH             .D2             *B7--, B5               ; h(i) --> B5
+      15 00000020 00006000                  NOP                             4                               ; delay slot de LDH
+      16 00000024 0194BC80                  MPY             .M1x    A5, B5, A3              ; Xn(i) * h(i) --> A3
+      17 00000028 00000000                  NOP
+      18 0000002c 020C8078                  ADD             .L1             A4, A3, A4              ; Yn = Yn + Xn(i) * h(i) --> A
+      19 00000030 029C4254                  STH             .D1             A5, *+A7[2]             ; Xn(i) --> Xn(i+1)
+      20 00000034 0003E05A                  SUB             .L2             B0, 1, B0               ; i - 1 --> i
+      21                    
+      22 00000038 2FFFFF10    [B0]  B               .S1             LOOP                    ; Branchement a LOOP si B0 != 0
+      23 0000003c 00008000                  NOP                             5                               ; 5 delays slots
+      24                    
+      25 00000040 0210CDE0                  SHR             .S1             A4, A6, A4              ; [Yn = Xn(N-1)*h(N-1) + Xn(N-
+      26                    
+      27 00000044 000C0362                  B               .S2             B3                              ; Return vers C
+      28 00000048 00008000                  NOP                             5
+      29                    
+      30                    
+
+No Assembly Errors, No Assembly Warnings

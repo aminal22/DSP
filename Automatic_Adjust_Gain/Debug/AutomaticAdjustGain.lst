@@ -1,0 +1,32 @@
+TMS320C6x Assembler PC v7.4.18 Sun Oct 22 18:45:15 2023
+
+Tools Copyright (c) 1996-2015 Texas Instruments Incorporated
+../AutomaticAdjustGain.asm                                           PAGE    1
+
+       1                    ; Registre A4 contient l'adresse de XnBuffer
+       2                    ; Registre B4 contient le nombre d'échantillons N
+       3                    ; Registre B3 contient l'adresse de retour au main
+       4                    
+       5                    ;*** Nombre de cycle de loop: 15 cycles * 128 = 1920 cycles
+       6                    
+       7                            .def    _FindGain
+       8 00000000           _FindGain:
+       9 00000000 05000FA8                  MVK             .S1             31, A10                 ; A10 = Maximum redondance du 
+      10 00000004 0010005A                  MV              .L2             B4, B0                  ; nombre d'échantillons N --> 
+      11 00000008           loop:
+      12 00000008 05903644                  LDH             .D1             *A4++, A11              ; Lecture d'un échantillons Xn
+      13 0000000c 00006000                  NOP                             4                               ; 4 delay slot pour l'
+      14 00000010 062C0C78                  NORM    .L1             A11, A12                ; Redondance du bit de signe de l'écha
+      15 00000014 01298AF8                  CMPLT   .L1             A12, A10, A2    ; Si (Redondance du bit de signe de l'échantil
+      16 00000018 A53001A0    [A2]  MV              .S1             A12, A10                ; Si oui, Redondance du bit de signe d
+      17 0000001c 0003E1A2                  SUB             .S2             B0, 1, B0               ; Décrementation du compteur d
+      18 00000020 2FFFFD10    [B0]  B               .S1             loop                    ; Boucle pour faire 128 itérations
+      19 00000024 00008000                  NOP                             5                               ; 5 delay slot pour l'
+      20                    
+      21 00000028 022A01A0                  SUB             .S1             A10, 16 , A4    ; Les échantillons sont "short" donc 1
+      22 0000002c 000C0362                  B       .S2             B3                              ; B3 contient l'adresse de ret
+      23 00000030 00008000                  NOP                             5                               ; 5 delay slot pour l'
+      24                    
+      25                    
+
+No Assembly Errors, No Assembly Warnings
